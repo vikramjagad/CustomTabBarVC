@@ -410,9 +410,16 @@ public class CustomTabBarController: UIViewController {
                 }
             } else {
                 if (index == customParam.selectedControllerIndex) {
-                    imgView.image = UIImage(named: customParam.tabData[index].selectedImg)
-                } else {
+                    imgView.image = UIImage(named: customParam.tabData[index].selectedImg)?.withRenderingMode(customParam.imgRenderingMode)
+                    if (customParam.imgRenderingMode == .alwaysTemplate) {
+                        imgView.tintColor = customParam.selectedImgTintColor
+                    } else {
+                        imgView.tintColor = customParam.imgTintColor
+                    }
+                } else if !(customParam.tabData[index].img.isEmpty) {
                     imgView.image = UIImage(named: customParam.tabData[index].img)
+                } else {
+                    imgView.image = nil
                 }
             }
         }
@@ -514,9 +521,16 @@ public class CustomTabBarController: UIViewController {
                             }
                         } else {
                             if (subView.tag == viewMainTag + customParam.selectedControllerIndex) {
-                                imgView.image = UIImage(named: customParam.tabData[subView.tag - viewMainTag].selectedImg)
-                            } else {
+                                imgView.image = UIImage(named: customParam.tabData[subView.tag - viewMainTag].selectedImg)?.withRenderingMode(customParam.imgRenderingMode)
+                                if (customParam.imgRenderingMode == .alwaysTemplate) {
+                                    imgView.tintColor = customParam.selectedImgTintColor
+                                } else {
+                                    imgView.tintColor = customParam.imgTintColor
+                                }
+                            } else if !(customParam.tabData[subView.tag - viewMainTag].img.isEmpty) {
                                 imgView.image = UIImage(named: customParam.tabData[subView.tag - viewMainTag].img)
+                            } else {
+                                imgView.image = nil
                             }
                         }
                     }
