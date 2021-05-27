@@ -47,13 +47,13 @@ private let ipad = (UIDevice.current.userInterfaceIdiom == .pad)
 public struct TabBarCustomParam {
     public var equalWidth: Bool = true
     public var fillRemainingSpace: Bool = false
-    public var titleFont: UIFont = UIFont.systemFont(ofSize: 16)
-    public var titleColor: UIColor = .red
-    public var selectedViewColor: UIColor = .blue
-    public var selectedTitleColor: UIColor = .white
+    public var titleFont: UIFont? = UIFont.systemFont(ofSize: 16)
+    public var titleColor: UIColor? = .red
+    public var selectedViewColor: UIColor? = .blue
+    public var selectedTitleColor: UIColor? = .white
     public var imgRenderingMode: UIImage.RenderingMode = .alwaysTemplate
-    public var imgTintColor: UIColor = .red
-    public var selectedImgTintColor: UIColor = .white
+    public var imgTintColor: UIColor? = .red
+    public var selectedImgTintColor: UIColor? = .white
     public var showSelectionView: Bool = true
     public var showSelectionCorner: Bool = true
     public var viewSelectionCornerRadius: CGFloat = 12
@@ -76,7 +76,7 @@ public struct TabBarCustomParam {
     public var viewMainSpacing: CGFloat = 8
     public var viewSelectionHeight: CGFloat = 2
     public var addShadow = false
-    public var shadowColor = UIColor.lightGray
+    public var shadowColor: UIColor? = UIColor.lightGray
     public var shadowOffset: CGSize = CGSize(width: 0, height: 0)
     public var shadowOpacity: Float = 0.3
     public var cornerRadius: CGFloat = 0
@@ -84,12 +84,12 @@ public struct TabBarCustomParam {
     public var edgeInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     public var topSafeAreaSpacing: CGFloat = UIApplication.shared.statusBarFrame.size.height
     public var bottomSafeAreaSpacing: CGFloat = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
-    public var tabColor: UIColor = .yellow
+    public var tabColor: UIColor? = .yellow
     public var selectionViewTopBottomSpacing: CGFloat = 4
     public var badgeHeight: CGFloat = 15
-    public var badgeTextColor: UIColor = .white
-    public var badgeBgColor: UIColor = .red
-    public var badgeTextFont: UIFont = UIFont.systemFont(ofSize: 12)
+    public var badgeTextColor: UIColor? = .white
+    public var badgeBgColor: UIColor? = .red
+    public var badgeTextFont: UIFont? = UIFont.systemFont(ofSize: 12)
     public var hideBadgeOnSelection: Bool = false
     public var badgePosition: TabBarBadgePosition = .aboveImage
     public var useAsContainer: Bool = true
@@ -120,7 +120,7 @@ public class CustomTabBarController: UIViewController {
     private let imgViewTag: Int = 40000
     private let btnTag: Int = 50000
     private let lblBadgeTag: Int = 60000
-    private var parentVC: UIViewController
+    private var parentVC: UIViewController?
     private var addTabToView: UIView
     private var scrlView = UIScrollView()
     private var viewDummyScrlView = UIView()
@@ -136,7 +136,7 @@ public class CustomTabBarController: UIViewController {
     }
     
     //MARK:- Initializers
-    public convenience init(param: TabBarCustomParam? = nil, parentVC: UIViewController, toView: UIView) {
+    public convenience init(param: TabBarCustomParam? = nil, parentVC: UIViewController?, toView: UIView) {
         self.init(nibName: nil, bundle: Bundle.main)
         if let param = param {
             customParam = param
@@ -147,7 +147,7 @@ public class CustomTabBarController: UIViewController {
     }
     
     public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        parentVC = UIViewController()
+        parentVC = nil
         addTabToView = UIView()
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
@@ -478,7 +478,7 @@ public class CustomTabBarController: UIViewController {
     }
     
     private func setUpShadowAndCorner() {
-        viewDummyScrlView.layer.shadowColor = customParam.shadowColor.cgColor
+        viewDummyScrlView.layer.shadowColor = customParam.shadowColor?.cgColor
         viewDummyScrlView.layer.masksToBounds = false
         viewDummyScrlView.layer.shadowOffset = customParam.shadowOffset
         viewDummyScrlView.layer.shadowOpacity = customParam.shadowOpacity
@@ -503,7 +503,7 @@ public class CustomTabBarController: UIViewController {
         if customParam.viewControllers.indices.contains(customParam.selectedControllerIndex) {
             let VC: UIViewController = customParam.viewControllers[customParam.selectedControllerIndex]
             VC.willMove(toParent: parentVC)
-            parentVC.addChild(VC)
+            parentVC?.addChild(VC)
             addTabToView.addSubview(VC.view)
             addConstraints(toVC: VC)
             VC.didMove(toParent: parentVC)
