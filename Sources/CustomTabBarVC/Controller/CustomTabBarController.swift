@@ -50,6 +50,7 @@ public struct TabBarCustomParam {
     public var titleFont: UIFont? = UIFont.systemFont(ofSize: 16)
     public var titleColor: UIColor? = .red
     public var selectedViewColor: UIColor? = .blue
+    public var deselectedViewColor: UIColor? = .clear
     public var selectedTitleColor: UIColor? = .white
     public var imgRenderingMode: UIImage.RenderingMode = .alwaysTemplate
     public var imgTintColor: UIColor? = .red
@@ -352,7 +353,7 @@ public class CustomTabBarController: UIViewController {
             if customParam.selectedControllerIndex == index {
                 customParam.tabData[index].isSelected = true
             }
-            viewMain.backgroundColor = customParam.tabData[index].isSelected ? customParam.selectedViewColor : .clear
+            viewMain.backgroundColor = customParam.tabData[index].isSelected ? customParam.selectedViewColor : customParam.deselectedViewColor
         }
         viewMain.translatesAutoresizingMaskIntoConstraints = false
         toView.addSubview(viewMain)
@@ -542,7 +543,7 @@ public class CustomTabBarController: UIViewController {
             if !customParam.useAsContainer && customParam.multiSelectionIfNotUsedAsContainer {
                 if subView.tag == viewMainTag + customParam.selectedControllerIndex {
                     customParam.tabData[subView.tag - viewMainTag].isSelected = !customParam.tabData[subView.tag - viewMainTag].isSelected
-                    subView.backgroundColor = customParam.tabData[subView.tag - viewMainTag].isSelected ? customParam.selectedViewColor : .clear
+                    subView.backgroundColor = customParam.tabData[subView.tag - viewMainTag].isSelected ? customParam.selectedViewColor : customParam.deselectedViewColor
                 }
             }
             if let viewCenter = subView.viewWithTag(viewCenterTag) {
@@ -613,6 +614,44 @@ public class CustomTabBarController: UIViewController {
             addNewController()
         }
         changeSelectionView()
+    }
+    
+    public func reloadViews() {
+        for subView in viewDummyScrlView.subviews {
+            let index = subView.tag - viewMainTag
+            subView.backgroundColor = customParam.tabData[index].isSelected ? customParam.selectedViewColor : customParam.deselectedViewColor
+            if let viewCenter = subView.viewWithTag(viewCenterTag) {
+                if let lbl = viewCenter.viewWithTag(lblTag) as? UILabel {
+                    lbl.textColor = customParam.tabData[index].isSelected ? customParam.selectedTitleColor : customParam.titleColor
+                }
+                if customParam.type != .title && customParam.imgRenderingMode == .alwaysTemplate {
+                    if let imgView = viewCenter.viewWithTag(imgViewTag) as? UIImageView {
+                        if customParam.tabData[index].selectedImg.isEmpty && customParam.imgRenderingMode == .alwaysTemplate {
+                            imgView.tintColor = customParam.tabData[index].isSelected ? customParam.selectedImgTintColor : customParam.imgTintColor
+                        } else {
+                            if customParam.tabData[index].isSelected {
+                                imgView.image = UIImage(named: customParam.tabData[index].selectedImg)?.withRenderingMode(customParam.imgRenderingMode)
+                                if customParam.imgRenderingMode == .alwaysTemplate {
+                                    imgView.tintColor = customParam.tabData[subView.tag - viewMainTag].isSelected ? customParam.selectedImgTintColor : customParam.imgTintColor
+                                } else {
+                                    imgView.tintColor = customParam.imgTintColor
+                                }
+                            } else if !customParam.tabData[index].img.isEmpty {
+                                imgView.image = UIImage(named: customParam.tabData[subView.tag - viewMainTag].img)
+                            } else {
+                                imgView.image = nil
+                            }
+                        }
+                    }
+                    if let lbl = viewCenter.viewWithTag(lblBadgeTag) as? UILabel {
+                        if customParam.tabData[index].isSelected && customParam.hideBadgeOnSelection {
+                            lbl.text = ""
+                            lbl.isHidden = true
+                        }
+                    }
+                }
+            }
+        }
     }
     
     //MARK:- Selector Methods
