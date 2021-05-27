@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = 'CustomTabBarVC'
-  spec.version          = '1.0.5'
+  spec.version          = '1.0.6'
   spec.summary          = 'Custom Tab Bar with options for modification.'
  
   spec.description      = <<-DESC

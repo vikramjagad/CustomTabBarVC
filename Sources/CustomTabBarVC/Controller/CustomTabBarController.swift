@@ -94,6 +94,10 @@ public struct TabBarCustomParam {
     public var badgePosition: TabBarBadgePosition = .aboveImage
     public var useAsContainer: Bool = true
     public var multiSelectionIfNotUsedAsContainer: Bool = false
+    public var addSeparator: Bool = true
+    public var separatorColor: UIColor? = .blue
+    public var separatorHeightRatio: CGFloat = 0.85
+    public var separatorWidth: CGFloat = 1
     
     public init() {
         
@@ -120,6 +124,7 @@ public class CustomTabBarController: UIViewController {
     private let imgViewTag: Int = 40000
     private let btnTag: Int = 50000
     private let lblBadgeTag: Int = 60000
+    private let viewSeparatorTag: Int = 70000
     private var parentVC: UIViewController?
     private var addTabToView: UIView
     private var scrlView = UIScrollView()
@@ -217,6 +222,9 @@ public class CustomTabBarController: UIViewController {
         var viewPrevious: UIView?
         for i in 0..<customParam.tabData.count {
             let viewMain = addViewMain(toView: viewDummyScrlView, index: i)
+            if customParam.addSeparator {
+                addSeparator(toView: viewMain)
+            }
             let viewCenter = addViewCenter(toView: viewMain)
             let lbl = addLbl(toView: viewCenter, index: i)
             let imgView = addImgView(toView: viewCenter, index: i)
@@ -353,6 +361,18 @@ public class CustomTabBarController: UIViewController {
         return viewMain
     }
     
+    private func addSeparator(toView: UIView) {
+        let viewSeparator = UIView()
+        viewSeparator.tag = viewSeparatorTag
+        viewSeparator.backgroundColor = customParam.separatorColor
+        viewSeparator.translatesAutoresizingMaskIntoConstraints = false
+        toView.addSubview(viewSeparator)
+        viewSeparator.centerYAnchor.constraint(equalTo: toView.centerYAnchor).isActive = true
+        viewSeparator.heightAnchor.constraint(equalTo: toView.heightAnchor, multiplier: customParam.separatorHeightRatio).isActive = true
+        viewSeparator.trailingAnchor.constraint(equalTo: toView.trailingAnchor).isActive = true
+        viewSeparator.widthAnchor.constraint(equalToConstant: customParam.separatorWidth).isActive = true
+    }
+    
     private func addViewCenter(toView: UIView) -> UIView {
         let viewCenter = UIView()
         viewCenter.tag = viewCenterTag
@@ -468,10 +488,14 @@ public class CustomTabBarController: UIViewController {
     private func handleSmallThanScreenWidth() {
         viewDummyScrlView.setNeedsLayout()
         viewDummyScrlView.layoutIfNeeded()
-        if !customParam.equalWidth && (viewDummyScrlView.frame.size.width < addTabToView.frame.size.width) && customParam.fillRemainingSpace {
+        if !customParam.equalWidth && viewDummyScrlView.frame.size.width < addTabToView.frame.size.width && customParam.fillRemainingSpace {
+            var remainingWidth = (addTabToView.frame.size.width - (customParam.viewMainSpacing * CGFloat(customParam.tabData.count + 1)) - customParam.edgeInsets.left - customParam.edgeInsets.right) - viewDummyScrlView.frame.size.width
+            remainingWidth = remainingWidth/CGFloat(customParam.tabData.count)
             for subView in viewDummyScrlView.subviews {
-                if (subView.tag != viewSelectionTag) {
-                    subView.widthAnchor.constraint(equalToConstant: (addTabToView.frame.size.width - (customParam.viewMainSpacing * CGFloat(customParam.tabData.count + 1)) - customParam.edgeInsets.left - customParam.edgeInsets.right)/CGFloat(customParam.tabData.count)).isActive = true
+                subView.setNeedsLayout()
+                subView.layoutIfNeeded()
+                if subView.tag != viewSelectionTag {
+                    subView.widthAnchor.constraint(equalToConstant: subView.frame.size.width + remainingWidth).isActive = true
                 }
             }
         }

@@ -104,18 +104,19 @@ class ViewController: UIViewController {
     }
     
     private func setUpNotAsContainer() {
-        tabParamNotAsContainer.tabData = [TabBarModel(title: "VC 1", img: "ic_account", selectedImg: "", badgeCount: ""),
+        tabParamNotAsContainer.tabData = [TabBarModel(title: "VC 1 8123891238971", img: "ic_account", selectedImg: "", badgeCount: ""),
                                           TabBarModel(title: "VC 2", img: "ic_camera", selectedImg: "", badgeCount: ""),
                                           TabBarModel(title: "VC 3", img: "ic_delete", selectedImg: "", badgeCount: "")]
         tabParamNotAsContainer.topSafeAreaSpacing = 0
         tabParamNotAsContainer.place = .top
         tabParamNotAsContainer.type = .title
-        tabParamNotAsContainer.equalWidth = true
+        tabParamNotAsContainer.equalWidth = false
+        tabParamNotAsContainer.fillRemainingSpace = true
         tabParamNotAsContainer.showSelectionView = true
         tabParamNotAsContainer.tabColor = .blue
         tabParamNotAsContainer.titleColor = .black
         tabParamNotAsContainer.imgTintColor = .black
-        tabParamNotAsContainer.selectedTitleColor = .white
+        tabParamNotAsContainer.selectedTitleColor = .brown
         tabParamNotAsContainer.selectedImgTintColor = .white
         tabParamNotAsContainer.viewMainSpacing = 0
         tabParamNotAsContainer.imgLeadingSpacing = 16
@@ -138,6 +139,9 @@ class ViewController: UIViewController {
         tabParamNotAsContainer.tabColor = .cyan
         tabParamNotAsContainer.selectionViewTopBottomSpacing = 0
         // tabParamNotAsContainer.multiSelectionIfNotUsedAsContainer = true
+        tabParamNotAsContainer.addSeparator = true
+        tabParamNotAsContainer.separatorColor = .yellow
+        tabParamNotAsContainer.separatorHeightRatio = 1
     }
     
     private func setUpTab() {
