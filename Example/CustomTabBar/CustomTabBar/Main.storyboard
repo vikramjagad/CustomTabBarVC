@@ -12,7 +12,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="TabDemo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="CustomTabBar" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -222,8 +222,25 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TGS-J6-VWF">
-                                                <rect key="frame" x="0.0" y="209" width="414" height="609"/>
+                                                <rect key="frame" x="0.0" y="209" width="414" height="569"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eOg-ij-yAJ">
+                                                <rect key="frame" x="0.0" y="778" width="414" height="40"/>
+                                                <subviews>
+                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hJ7-Kf-rVJ">
+                                                        <rect key="frame" x="16" y="0.0" width="382" height="40"/>
+                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                    </view>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="trailing" secondItem="hJ7-Kf-rVJ" secondAttribute="trailing" constant="16" id="5tn-4i-4Jf"/>
+                                                    <constraint firstAttribute="bottom" secondItem="hJ7-Kf-rVJ" secondAttribute="bottom" id="Izn-9Y-EwI"/>
+                                                    <constraint firstItem="hJ7-Kf-rVJ" firstAttribute="top" secondItem="eOg-ij-yAJ" secondAttribute="top" id="MEE-FU-OC6"/>
+                                                    <constraint firstAttribute="height" constant="40" id="kI4-up-jgn"/>
+                                                    <constraint firstItem="hJ7-Kf-rVJ" firstAttribute="leading" secondItem="eOg-ij-yAJ" secondAttribute="leading" constant="16" id="nla-IP-kC8"/>
+                                                </constraints>
                                             </view>
                                         </subviews>
                                         <constraints>
@@ -257,6 +274,7 @@
                         <outlet property="tfCorner" destination="cUW-C6-PsI" id="JdL-nY-uQq"/>
                         <outlet property="tfIndex" destination="eTS-xW-vup" id="c2D-G4-fRg"/>
                         <outlet property="viewContainer" destination="TGS-J6-VWF" id="Bc8-G8-4En"/>
+                        <outlet property="viewNotAsContainer" destination="hJ7-Kf-rVJ" id="Sfa-kf-FuG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

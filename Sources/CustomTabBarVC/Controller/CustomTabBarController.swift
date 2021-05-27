@@ -32,6 +32,7 @@ public class TabBarModel: NSObject {
     let img: String
     let selectedImg: String
     var badgeCount: String
+    var isSelected = false
     
     public init(title: String, img: String, selectedImg: String, badgeCount: String) {
         self.title = title
@@ -66,7 +67,6 @@ public struct TabBarCustomParam {
     public var imgLeadingSpacing: CGFloat = 5
     public var titleTopSpacing: CGFloat = 5
     public var titleBottomSpacing: CGFloat = 5
-    public let screenWidth: CGFloat = UIScreen.main.bounds.size.width
     public var viewControllers: [UIViewController] = []
     public var tabData: [TabBarModel] = []
     public var selectedControllerIndex: Int = 0
@@ -92,6 +92,8 @@ public struct TabBarCustomParam {
     public var badgeTextFont: UIFont = UIFont.systemFont(ofSize: 12)
     public var hideBadgeOnSelection: Bool = false
     public var badgePosition: TabBarBadgePosition = .aboveImage
+    public var useAsContainer: Bool = true
+    public var multiSelectionIfNotUsedAsContainer: Bool = false
     
     public init() {
         
@@ -101,9 +103,11 @@ public struct TabBarCustomParam {
 public extension Notification.Name {
     enum Keys: String {
         case updateBadgeCount
+        case tabSelectionChanged
     }
     
     static let updateBadgeCount = Notification.Name(rawValue: Keys.updateBadgeCount.rawValue)
+    static let tabSelectionChanged = Notification.Name(rawValue: Keys.tabSelectionChanged.rawValue)
 }
 
 public class CustomTabBarController: UIViewController {
@@ -162,24 +166,26 @@ public class CustomTabBarController: UIViewController {
     //MARK:- Private Methods
     private func setUpVC() {
         setUpScrlView()
-        if customParam.showSelectionView {
+        if customParam.showSelectionView && !customParam.multiSelectionIfNotUsedAsContainer {
             setUpSelectionView()
         }
         setUpViews()
-        addNewController()
+        if customParam.useAsContainer {
+            addNewController()
+        }
         handleSmallThanScreenWidth()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            if (self.customParam.showSelectionView) {
+            if self.customParam.showSelectionView && !self.customParam.multiSelectionIfNotUsedAsContainer {
                 self.moveSelectionView()
             }
-            if (self.customParam.addShadow) {
+            if self.customParam.addShadow {
                 self.setUpShadowAndCorner()
             }
         }
     }
     
     private func setUpScrlView() {
-        scrlView = UIScrollView(frame: CGRect(x: 0, y: 0, width: customParam.screenWidth, height: customParam.tabHeight))
+        scrlView = UIScrollView(frame: CGRect(x: 0, y: 0, width: addTabToView.frame.size.width, height: customParam.tabHeight))
         scrlView.showsVerticalScrollIndicator = false
         scrlView.showsHorizontalScrollIndicator = false
         scrlView.bounces = false
@@ -259,7 +265,7 @@ public class CustomTabBarController: UIViewController {
                 viewCenter.trailingAnchor.constraint(equalTo: lbl.trailingAnchor, constant: customParam.titleLeadingTrailingSpacing).isActive = true
             }
             if customParam.equalWidth {
-                viewMain.widthAnchor.constraint(equalToConstant: (customParam.screenWidth - (customParam.viewMainSpacing * CGFloat(customParam.tabData.count + 1)) - customParam.edgeInsets.left - customParam.edgeInsets.right)/CGFloat(customParam.tabData.count)).isActive = true
+                viewMain.widthAnchor.constraint(equalToConstant: (addTabToView.frame.size.width - (customParam.viewMainSpacing * CGFloat(customParam.tabData.count + 1)) - customParam.edgeInsets.left - customParam.edgeInsets.right)/CGFloat(customParam.tabData.count)).isActive = true
             }
             if i == 0 {
                 viewMain.leadingAnchor.constraint(equalTo: viewDummyScrlView.leadingAnchor, constant: customParam.viewMainSpacing).isActive = true
@@ -334,6 +340,12 @@ public class CustomTabBarController: UIViewController {
     private func addViewMain(toView: UIView, index: Int) -> UIView {
         let viewMain = UIView()
         viewMain.tag = viewMainTag + index
+        if !customParam.useAsContainer && customParam.multiSelectionIfNotUsedAsContainer {
+            if customParam.selectedControllerIndex == index {
+                customParam.tabData[index].isSelected = true
+            }
+            viewMain.backgroundColor = customParam.tabData[index].isSelected ? customParam.selectedViewColor : .clear
+        }
         viewMain.translatesAutoresizingMaskIntoConstraints = false
         toView.addSubview(viewMain)
         viewMain.topAnchor.constraint(equalTo: toView.topAnchor).isActive = true
@@ -356,13 +368,13 @@ public class CustomTabBarController: UIViewController {
     private func addLbl(toView: UIView, index: Int) -> UILabel {
         let lbl = UILabel()
         lbl.tag = lblTag
-        if (index == customParam.selectedControllerIndex) {
+        if index == customParam.selectedControllerIndex {
             lbl.textColor = customParam.selectedTitleColor
         } else {
             lbl.textColor = customParam.titleColor
         }
         lbl.font = customParam.titleFont
-        if (customParam.tabData.indices.contains(index)) {
+        if customParam.tabData.indices.contains(index) {
             lbl.text = customParam.tabData[index].title
         }
         lbl.textAlignment = .center
@@ -378,7 +390,7 @@ public class CustomTabBarController: UIViewController {
         lbl.textColor = customParam.badgeTextColor
         lbl.font = customParam.badgeTextFont
         lbl.backgroundColor = customParam.badgeBgColor
-        if (customParam.tabData.indices.contains(index)) {
+        if customParam.tabData.indices.contains(index) {
             lbl.text = customParam.tabData[index].badgeCount
             lbl.isHidden = customParam.tabData[index].badgeCount.isEmpty
         }
@@ -456,10 +468,10 @@ public class CustomTabBarController: UIViewController {
     private func handleSmallThanScreenWidth() {
         viewDummyScrlView.setNeedsLayout()
         viewDummyScrlView.layoutIfNeeded()
-        if !(customParam.equalWidth) && (viewDummyScrlView.frame.size.width < customParam.screenWidth) && customParam.fillRemainingSpace {
+        if !customParam.equalWidth && (viewDummyScrlView.frame.size.width < addTabToView.frame.size.width) && customParam.fillRemainingSpace {
             for subView in viewDummyScrlView.subviews {
                 if (subView.tag != viewSelectionTag) {
-                    subView.widthAnchor.constraint(equalToConstant: (customParam.screenWidth - (customParam.viewMainSpacing * CGFloat(customParam.tabData.count + 1)) - customParam.edgeInsets.left - customParam.edgeInsets.right)/CGFloat(customParam.tabData.count)).isActive = true
+                    subView.widthAnchor.constraint(equalToConstant: (addTabToView.frame.size.width - (customParam.viewMainSpacing * CGFloat(customParam.tabData.count + 1)) - customParam.edgeInsets.left - customParam.edgeInsets.right)/CGFloat(customParam.tabData.count)).isActive = true
                 }
             }
         }
@@ -499,33 +511,55 @@ public class CustomTabBarController: UIViewController {
     }
     
     private func changeSelectionView() {
-        if customParam.showSelectionView {
+        if customParam.showSelectionView && !customParam.multiSelectionIfNotUsedAsContainer {
             moveSelectionView()
         }
         for subView in viewDummyScrlView.subviews {
+            if !customParam.useAsContainer && customParam.multiSelectionIfNotUsedAsContainer {
+                if subView.tag == viewMainTag + customParam.selectedControllerIndex {
+                    customParam.tabData[subView.tag - viewMainTag].isSelected = !customParam.tabData[subView.tag - viewMainTag].isSelected
+                    subView.backgroundColor = customParam.tabData[subView.tag - viewMainTag].isSelected ? customParam.selectedViewColor : .clear
+                }
+            }
             if let viewCenter = subView.viewWithTag(viewCenterTag) {
                 if let lbl = viewCenter.viewWithTag(lblTag) as? UILabel {
-                    if subView.tag == viewMainTag + customParam.selectedControllerIndex {
-                        lbl.textColor = customParam.selectedTitleColor
+                    if !customParam.useAsContainer && customParam.multiSelectionIfNotUsedAsContainer {
+                        lbl.textColor = customParam.tabData[subView.tag - viewMainTag].isSelected ? customParam.selectedTitleColor : customParam.titleColor
                     } else {
-                        lbl.textColor = customParam.titleColor
+                        if subView.tag == viewMainTag + customParam.selectedControllerIndex {
+                            lbl.textColor = customParam.selectedTitleColor
+                        } else {
+                            lbl.textColor = customParam.titleColor
+                        }
                     }
                 }
                 if customParam.type != .title && customParam.imgRenderingMode == .alwaysTemplate {
                     if let imgView = viewCenter.viewWithTag(imgViewTag) as? UIImageView {
                         if customParam.tabData[subView.tag - viewMainTag].selectedImg.isEmpty && customParam.imgRenderingMode == .alwaysTemplate {
-                            if subView.tag == viewMainTag + customParam.selectedControllerIndex {
-                                imgView.tintColor = customParam.selectedImgTintColor
+                            if !customParam.useAsContainer && customParam.multiSelectionIfNotUsedAsContainer {
+                                imgView.tintColor = customParam.tabData[subView.tag - viewMainTag].isSelected ? customParam.selectedImgTintColor : customParam.imgTintColor
                             } else {
-                                imgView.tintColor = customParam.imgTintColor
+                                if subView.tag == viewMainTag + customParam.selectedControllerIndex {
+                                    imgView.tintColor = customParam.selectedImgTintColor
+                                } else {
+                                    imgView.tintColor = customParam.imgTintColor
+                                }
                             }
                         } else {
                             if subView.tag == viewMainTag + customParam.selectedControllerIndex {
                                 imgView.image = UIImage(named: customParam.tabData[subView.tag - viewMainTag].selectedImg)?.withRenderingMode(customParam.imgRenderingMode)
-                                if customParam.imgRenderingMode == .alwaysTemplate {
-                                    imgView.tintColor = customParam.selectedImgTintColor
+                                if !customParam.useAsContainer && customParam.multiSelectionIfNotUsedAsContainer {
+                                    if customParam.imgRenderingMode == .alwaysTemplate {
+                                        imgView.tintColor = customParam.tabData[subView.tag - viewMainTag].isSelected ? customParam.selectedImgTintColor : customParam.imgTintColor
+                                    } else {
+                                        imgView.tintColor = customParam.imgTintColor
+                                    }
                                 } else {
-                                    imgView.tintColor = customParam.imgTintColor
+                                    if customParam.imgRenderingMode == .alwaysTemplate {
+                                        imgView.tintColor = customParam.selectedImgTintColor
+                                    } else {
+                                        imgView.tintColor = customParam.imgTintColor
+                                    }
                                 }
                             } else if !customParam.tabData[subView.tag - viewMainTag].img.isEmpty {
                                 imgView.image = UIImage(named: customParam.tabData[subView.tag - viewMainTag].img)
@@ -547,18 +581,27 @@ public class CustomTabBarController: UIViewController {
     
     //MARK:- Public Methods
     public func changeTabIndex(to: Int) {
-        removeOldController()
+        if (customParam.useAsContainer) {
+            removeOldController()
+        }
         customParam.selectedControllerIndex = to
-        addNewController()
+        if (customParam.useAsContainer) {
+            addNewController()
+        }
         changeSelectionView()
     }
     
     //MARK:- Selector Methods
     @objc private func changeSelection(_ sender: UIButton) {
-        removeOldController()
+        if (customParam.useAsContainer) {
+            removeOldController()
+        }
         customParam.selectedControllerIndex = sender.tag - btnTag
-        addNewController()
+        if (customParam.useAsContainer) {
+            addNewController()
+        }
         changeSelectionView()
+        NotificationCenter.default.post(name: .tabSelectionChanged, object: customParam.selectedControllerIndex)
     }
     
     @objc private func updateBadgeCount(_ sender: Notification) {

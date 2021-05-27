@@ -11,6 +11,7 @@ class ViewController: UIViewController {
     //MARK:- Interface Builder
     //UIView
     @IBOutlet weak var viewContainer: UIView!
+    @IBOutlet weak var viewNotAsContainer: UIView!
     
     //UITextField
     @IBOutlet weak var tfCorner: UITextField!
@@ -20,7 +21,9 @@ class ViewController: UIViewController {
     //MARK:- Variables
     //Private
     private var tabParam = TabBarCustomParam()
+    private var tabParamNotAsContainer = TabBarCustomParam()
     private var tabViewController: CustomTabBarController!
+    private var tabViewControllerNotAsContainer: CustomTabBarController!
     var controllers: [UIViewController] = []
     
     //MARK:- Lifecycle Methods
@@ -33,6 +36,7 @@ class ViewController: UIViewController {
     private func setUpVC() {
         setUpTextFields()
         setUpTabParams()
+        setUpNotAsContainer()
         setUpTab()
     }
     
@@ -99,9 +103,50 @@ class ViewController: UIViewController {
         tabParam.badgePosition = .aboveImage
     }
     
+    private func setUpNotAsContainer() {
+        tabParamNotAsContainer.tabData = [TabBarModel(title: "VC 1", img: "ic_account", selectedImg: "", badgeCount: ""),
+                                          TabBarModel(title: "VC 2", img: "ic_camera", selectedImg: "", badgeCount: ""),
+                                          TabBarModel(title: "VC 3", img: "ic_delete", selectedImg: "", badgeCount: "")]
+        tabParamNotAsContainer.topSafeAreaSpacing = 0
+        tabParamNotAsContainer.place = .top
+        tabParamNotAsContainer.type = .title
+        tabParamNotAsContainer.equalWidth = true
+        tabParamNotAsContainer.showSelectionView = true
+        tabParamNotAsContainer.tabColor = .blue
+        tabParamNotAsContainer.titleColor = .black
+        tabParamNotAsContainer.imgTintColor = .black
+        tabParamNotAsContainer.selectedTitleColor = .white
+        tabParamNotAsContainer.selectedImgTintColor = .white
+        tabParamNotAsContainer.viewMainSpacing = 0
+        tabParamNotAsContainer.imgLeadingSpacing = 16
+        tabParamNotAsContainer.titleLeadingTrailingSpacing = 16
+        tabParamNotAsContainer.tabHeight = 40
+        tabParamNotAsContainer.cornerRadius = 0
+        tabParamNotAsContainer.edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        tabParamNotAsContainer.shadowOffset = CGSize(width: 0, height: 1)
+        tabParamNotAsContainer.cornerTo = [.bottomLeft, .bottomRight]
+        tabParamNotAsContainer.titleFont = .systemFont(ofSize: 16)
+        tabParamNotAsContainer.badgeBgColor = .red
+        tabParamNotAsContainer.badgeTextFont = .systemFont(ofSize: 12)
+        tabParamNotAsContainer.badgeTextColor = .white
+        tabParamNotAsContainer.selectedViewColor = .yellow
+        tabParamNotAsContainer.badgeHeight = 20
+        tabParamNotAsContainer.hideBadgeOnSelection = true
+        tabParamNotAsContainer.badgePosition = .aboveImage
+        tabParamNotAsContainer.useAsContainer = false
+        tabParamNotAsContainer.viewSelectionCornerRadius = 0
+        tabParamNotAsContainer.tabColor = .cyan
+        tabParamNotAsContainer.selectionViewTopBottomSpacing = 0
+        // tabParamNotAsContainer.multiSelectionIfNotUsedAsContainer = true
+    }
+    
     private func setUpTab() {
         tabViewController = nil
         tabViewController = CustomTabBarController(param: tabParam, parentVC: self, toView: viewContainer)
+        tabViewControllerNotAsContainer = nil
+        tabViewControllerNotAsContainer = CustomTabBarController(param: tabParamNotAsContainer, parentVC: self, toView: viewNotAsContainer)
+        viewNotAsContainer.layer.borderWidth = 1
+        viewNotAsContainer.layer.borderColor = UIColor.brown.cgColor
     }
     
     //MARK:- Actions
