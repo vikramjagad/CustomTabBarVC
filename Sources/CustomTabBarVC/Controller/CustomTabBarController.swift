@@ -32,7 +32,7 @@ public class TabBarModel: NSObject {
     let img: String
     let selectedImg: String
     var badgeCount: String
-    var isSelected = false
+    public var isSelected = false
     
     public init(title: String, img: String, selectedImg: String, badgeCount: String) {
         self.title = title
